@@ -195,13 +195,17 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     console.log("userIP", userIP);
     const countryResponse = await fetch(`http://ip-api.com/json/${userIP}`);
     const response = await countryResponse?.json();
-    console.log("response", response);
     if (response?.country) {
       country = response?.country;
     }
   } catch (error) {
     console.log("error", error);
   }
+
+  if (process.env.NO_IP_VALIDATE === "true") {
+    country = "United States";
+  }
+  console.log("country", country);
 
   if (process.env.NEXT_PUBLIC_NODE_ENV === "development") {
     host = "localhost:8181";
@@ -214,12 +218,12 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     : ("en" as Language);
   userLanguage = userLanguage?.split("-")[0] as Language;
   console.log("userLanguage", userLanguage);
-
   try {
     const landingPage = await GetLandingPageService({
       host,
       language: userLanguage,
     });
+
     return {
       props: {
         landingPage: landingPage,
